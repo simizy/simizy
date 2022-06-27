@@ -1,0 +1,21 @@
+pr: 
+  - main
+
+trigger: none
+
+variables:  
+  - group: AZURE_CREDENTIALS  
+
+steps:  
+  - pwsh: |
+      az login --service-principal -u $(ARM_CLIENT_ID) -p $(ARM_CLIENT_SECRET) --tenant $(ARM_TENANT_ID)  
+      az account set --subscription $(ARM_SUBSCRIPTION_ID)  
+      cd $(Build.SourcesDirectory)/test/azure  
+      go mod init "terratest-ex"  
+      go get -v -u github.com/gruntwork-io/terratest  
+      go test -v -timeout 30m  
+    env:  
+      ARM_CLIENT_ID: $(ARM_CLIENT_ID)  
+      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)  
+      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)  
+      ARM_TENANT_ID: $(ARM_TENANT_ID)  
